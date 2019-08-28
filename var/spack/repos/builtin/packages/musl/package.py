@@ -33,6 +33,8 @@ class Musl(Package):
 
     phases = ['configure', 'build', 'install']
 
+    provides('libc')
+
     def patch(self):
         config = FileFilter('configure')
         if self.compiler.name == 'gcc':
