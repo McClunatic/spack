@@ -81,8 +81,8 @@ class Glibc(AutotoolsPackage):
     @property
     def linker(self):
         for dirname in ['lib64', 'lib']:
-            linker = find_libraries('ld-linux',
+            linker = find_libraries('ld-linux*',
                                     join_path(self.prefix, dirname),
                                     shared=True, recursive=False)
             if linker:
-                return linker
+                return linker[0]
