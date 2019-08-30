@@ -34,6 +34,8 @@ class Elfutils(AutotoolsPackage):
             description='Support bzip2 compressed sections.')
     variant('xz', default=False,
             description='Support xz (lzma) compressed sections.')
+    variant('libc', default=False,
+            description='Build using a custom libc.')
 
     # Native language support from libintl.
     variant('nls', default=True,
@@ -44,6 +46,7 @@ class Elfutils(AutotoolsPackage):
     depends_on('zlib',  type='link')
     depends_on('gettext', when='+nls')
     depends_on('m4',    type='build')
+    depends_on('libc', when='+libc')
 
     conflicts('%gcc@7.2.0:', when='@0.163')
 
