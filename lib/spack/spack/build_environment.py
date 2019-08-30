@@ -44,7 +44,7 @@ from six import StringIO
 
 import llnl.util.tty as tty
 from llnl.util.tty.color import cescape, colorize
-from llnl.util.filesystem import mkdirp, install, install_tree
+from llnl.util.filesystem import mkdirp, install, install_tree, find_libraries
 from llnl.util.lang import dedupe
 
 import spack.build_systems.cmake
@@ -602,11 +602,14 @@ def get_rpath_deps(pkg):
 
 
 def get_linker(pkg):
-    """Return linker if `pkg` requires a custom dynamic linker, else ``''``.
+    """Return linker for `pkg`.
 
     """
     if 'libc' not in pkg.spec:
-        return ''
+        for dirname in ['/lib', '/lib64']:
+            linkers = find_libraries('ld-*', dirname, shared=True)
+            if linkers:
+                return linkers[0]
     else:
         return pkg.spec['libc'].linker
 
