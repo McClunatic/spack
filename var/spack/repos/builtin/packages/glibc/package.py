@@ -51,8 +51,6 @@ class Glibc(AutotoolsPackage):
     depends_on('perl@5:')
     depends_on('python@3.4:', when='@2.25:')
 
-    patch('binutils-2.23-loc.patch', when='^binutils@2.23:')
-
     build_directory = 'spack-build'
 
     def configure_args(self):
