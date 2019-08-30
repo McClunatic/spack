@@ -935,6 +935,11 @@ class SpecBuildInterface(ObjectWrapper):
         default_handler=_libs_default_handler
     )
 
+    linker = ForwardQueryToPackage(
+        'linker',
+        default_handler=None
+    )
+
     def __init__(self, spec, name, query_parameters):
         super(SpecBuildInterface, self).__init__(spec)
 
