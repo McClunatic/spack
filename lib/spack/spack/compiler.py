@@ -222,6 +222,23 @@ class Compiler(object):
     def fc_rpath_arg(self):
         return '-Wl,-rpath,'
 
+    # Default flags used by a compiler to set a dynamic linker
+    @property
+    def cc_linker_arg(self):
+        return '-Wl,--dynamic-linker='
+
+    @property
+    def cxx_linker_arg(self):
+        return '-Wl,--dynamic-linker='
+
+    @property
+    def f77_linker_arg(self):
+        return '-Wl,--dynamic-linker='
+
+    @property
+    def fc_linker_arg(self):
+        return '-Wl,--dynamic-linker='
+
     # Cray PrgEnv name that can be used to load this compiler
     PrgEnv = None
     # Name of module used to switch versions of this compiler

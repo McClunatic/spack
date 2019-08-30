@@ -378,10 +378,14 @@ case "$mode" in
         ;;
 esac
 
+# Set up dynamic linker variable according to language.
+eval linker_arg=\$SPACK_${comp}_LINKER_ARG
+read -r linker <<< "$SPACK_DYNAMIC_LINKER"
+
 # Linker flags
 case "$mode" in
     ld|ccld)
-        flags=("${flags[@]}" "${SPACK_LDFLAGS[@]}") ;;
+        flags=("${flags[@]}" "${SPACK_LDFLAGS[@]}" "$linker_arg$linker") ;;
 esac
 
 # On macOS insert headerpad_max_install_names linker flag

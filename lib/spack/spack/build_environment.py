@@ -79,6 +79,7 @@ SPACK_INCLUDE_DIRS = 'SPACK_INCLUDE_DIRS'
 SPACK_LINK_DIRS = 'SPACK_LINK_DIRS'
 SPACK_RPATH_DIRS = 'SPACK_RPATH_DIRS'
 SPACK_RPATH_DEPS = 'SPACK_RPATH_DEPS'
+SPACK_DYNAMIC_LINKER = 'SPACK_DYNAMIC_LINKER'
 SPACK_LINK_DEPS = 'SPACK_LINK_DEPS'
 SPACK_PREFIX = 'SPACK_PREFIX'
 SPACK_INSTALL = 'SPACK_INSTALL'
@@ -204,6 +205,12 @@ def set_compiler_environment_variables(pkg, env):
     isa_arg = spec.architecture.target.optimization_flags(compiler)
     env.set('SPACK_TARGET_ARGS', isa_arg)
 
+    # Set SPACK compiler dynamic linker flags as well
+    env.set('SPACK_CC_LINKER_ARG',  compiler.cc_linker_arg)
+    env.set('SPACK_CXX_LINKER_ARG', compiler.cxx_linker_arg)
+    env.set('SPACK_F77_LINKER_ARG', compiler.f77_linker_arg)
+    env.set('SPACK_FC_LINKER_ARG',  compiler.fc_linker_arg)
+
     # Trap spack-tracked compiler flags as appropriate.
     # env_flags are easy to accidentally override.
     inject_flags = {}
@@ -265,6 +272,7 @@ def set_build_environment_variables(pkg, env, dirty):
     link_deps       = set(pkg.spec.traverse(root=False, deptype=('link')))
     build_link_deps = build_deps | link_deps
     rpath_deps      = get_rpath_deps(pkg)
+    linker          = get_linker(pkg)
 
     link_dirs = []
     include_dirs = []
@@ -310,6 +318,7 @@ def set_build_environment_variables(pkg, env, dirty):
     env.set(SPACK_LINK_DIRS, ':'.join(link_dirs))
     env.set(SPACK_INCLUDE_DIRS, ':'.join(include_dirs))
     env.set(SPACK_RPATH_DIRS, ':'.join(rpath_dirs))
+    env.set(SPACK_DYNAMIC_LINKER, linker)
 
     build_prefixes      = [dep.prefix for dep in build_deps]
     build_link_prefixes = [dep.prefix for dep in build_link_deps]
@@ -590,6 +599,16 @@ def get_rpath_deps(pkg):
         return [d for d in pkg.spec.traverse(root=False, deptype=('link'))]
     else:
         return pkg.spec.dependencies(deptype='link')
+
+
+def get_linker(pkg):
+    """Return linker if `pkg` requires a custom dynamic linker, else ``''``.
+
+    """
+    if 'libc' not in pkg.spec:
+        return ''
+    else:
+        return pkg.spec['libc'].linker
 
 
 def get_rpaths(pkg):
