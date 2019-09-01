@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
+import os
 import sys
 
 from spack import *
@@ -44,14 +45,45 @@ class Glibc(AutotoolsPackage):
             default=True,
             description='Build shared libraries')
 
-    depends_on('autoconf')
-    depends_on('gettext')
-    depends_on('binutils')
-    depends_on('texinfo')
-    depends_on('perl@5:')
-    depends_on('python@3.4:', when='@2.25:')
+    depends_on('autoconf', type='build')
+    depends_on('gettext', type='build')
+    depends_on('binutils', type='build')
+    depends_on('texinfo', type='build')
+    depends_on('perl@5:', type='build')
+    depends_on('python@3.4:', when='@2.25:', type='build')
+    # TODO: check these version glibc min
+    depends_on('bison@2.7:', when='@2.25:', type='build')
+    depends_on('gmake@4.0:', when='@2.25:', type='build')
+
+    # Enforce that the compiler be gcc
+    conflicts('%arm')
+    conflicts('%cce')
+    conflicts('%clang')
+    conflicts('%fj')
+    conflicts('%intel')
+    conflicts('%nag')
+    conflicts('%pgi')
+    conflicts('%xl')
+    conflicts('%xl_r')
 
     build_directory = 'spack-build'
+
+    def flag_handler(self, name, flags):
+        """Adds -specs file argument to LDFLAGS to prevent RPATHs."""
+        if name == 'ldflags':
+            assert self.spec.satisfies('%gcc'), \
+                'Unable to build glibc using non-gcc compiler'
+            gcc = Executable(self.compiler.cc)
+
+            # Use a default specs file rather than the installed one
+            with working_dir(self.build_directory, create=True):
+                with open('glibc.specs', 'w') as specs_file:
+                    gcc('-dumpspecs', output=specs_file)
+
+            specs_filename = os.path.abspath(
+                join_path(self.build_directory, 'glibc.specs'))
+            flags.extend(['-specs', specs_filename])
+        return (flags, None, None)
 
     def configure_args(self):
         spec = self.spec

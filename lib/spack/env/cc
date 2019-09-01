@@ -223,6 +223,13 @@ then
     done
 fi
 
+# The GNU C library contains checks that assert DT_RPATH and DT_RUNPATH
+# are not set. This check disables -rpath when building glibc.
+if [[ $SPACK_SHORT_SPEC == glibc* ]];
+then
+    add_rpaths=false
+fi
+
 # Save original command for debug logging
 input_command="$*"
 
