@@ -70,7 +70,7 @@ class Glibc(AutotoolsPackage):
 
     @property
     def libs(self):
-        shared = spec.satisfies('+shared')
+        shared = self.spec.satisfies('+shared')
         for dirname in ['lib64', 'lib']:
             libs = find_libraries(['libc'],
                                   join_path(self.prefix, dirname),
@@ -79,10 +79,9 @@ class Glibc(AutotoolsPackage):
                 return libs
 
     @property
-    def linker(self):
+    def libc_linker(self):
         for dirname in ['lib64', 'lib']:
-            linker = find_libraries('ld-linux*',
-                                    join_path(self.prefix, dirname),
-                                    shared=True, recursive=False)
+            linker = find(join_path(self.prefix, dirname), 'ld-linux*.so.?',
+                          recursive=False)
             if linker:
                 return linker[0]
