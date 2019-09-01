@@ -606,10 +606,7 @@ def get_linker(pkg):
 
     """
     if 'libc' not in pkg.spec:
-        for dirname in ['/lib', '/lib64']:
-            linkers = find_libraries('ld-*', dirname, shared=True)
-            if linkers:
-                return linkers[0]
+        return ''
     else:
         return pkg.spec['libc'].linker
 
