@@ -33,31 +33,45 @@ class Dakota(CMakePackage):
 
     variant('shared', default=True,
             description='Enables the build of shared libraries')
-    variant('mpi', default=True, description='Activates MPI support')
-
-    # Generic 'lapack' provider won't work, dakota searches for
-    # 'LAPACKConfig.cmake' or 'lapack-config.cmake' on the path
-    depends_on('netlib-lapack')
+    variant('hdf5', default=True,
+            description='Activates HDF5 support')
+    variant('trilinos', default=True,
+            description='Activates Trilinos Teuchos support')
+    variant('openblas', default=True,
+            description='Hints for OpenBLAS for BLAS LAPACK support')
 
     depends_on('blas')
-    depends_on('mpi', when='+mpi')
-
+    depends_on('lapack')
+    depends_on('mpi')
     depends_on('python')
-    depends_on('boost')
+    depends_on('boost@1.49.0:1.67.0')
     depends_on('cmake@2.8.9:', type='build')
+    depends_on('hdf5+cxx+fortran+hl+mpi', when='+hdf5')
+    depends_on('trilinos+rol+teuchos+complex', when='+trilinos')
+    depends_on('openblas', when='+openblas')
+
+    # Ensure <cmath> is included where std::isnan is used
+    patch('JEGA-discrete-design-cmath.patch', when='@6.9')
 
     def cmake_args(self):
         spec = self.spec
 
+        if len(spec['blas'].lib) > 1:
+            raise ValueError('Multiple libraries found for blas, aborting')
+        if len(spec['lapack'].lib) > 1:
+            raise ValueError('Multiple libraries found for lapack, aborting')
+
         args = [
             '-DBUILD_SHARED_LIBS:BOOL=%s' % (
                 'ON' if '+shared' in spec else 'OFF'),
+            '-DDAKOTA_HAVE_HDF5:BOOL=%s' % (
+                'ON' if '+hdf5' in spec else 'OFF'),
+            '-DBUILD_IN_TRILINOS:BOOL=%s' % (
+                'OFF' if '+trilinos' in spec else 'ON'),
+            '-DBLAS_LIBS=%s' % spec['blas'].libs[0],
+            '-DLAPACK_LIBS=%s' % spec['lapack'].libs[0]),
+            '-DDAKOTA_HAVE_MPI:BOOL=ON',
+            '-DMPI_CXX_COMPILER:STRING=%s' % spec['mpi'].mpicxx,
         ]
-
-        if '+mpi' in spec:
-            args.extend([
-                '-DDAKOTA_HAVE_MPI:BOOL=ON',
-                '-DMPI_CXX_COMPILER:STRING=%s' % join_path(spec['mpi'].mpicxx),
-            ])
 
         return args

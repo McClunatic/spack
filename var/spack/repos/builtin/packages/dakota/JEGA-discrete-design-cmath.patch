@@ -1,0 +1,10 @@
+--- spack-old/packages/external/JEGA/Utilities/src/DiscreteDesignVariableNature.cpp	2019-09-20 12:49:00.000000000 -0400
+--- spack-new/packages/external/JEGA/Utilities/src/DiscreteDesignVariableNature.cpp	2019-09-20 12:50:00.000000000 -0400
+@@ -60,6 +60,7 @@
+ #include <../Utilities/include/JEGAConfig.hpp>
+ 
+ #include <cfloat>
++#include <cmath>
+ #include <limits>
+ #include <algorithm>
+ #include <functional>
