@@ -1,0 +1,25 @@
+{
+  "name": "Spack for RHEL 8",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:latest": {
+      "installZsh": false,
+      "installOhMyZsh": false,
+      "installOhMyZshConfig": false,
+      "upgradePackages": false,
+      "username": "spack",
+    },
+    "ghcr.io/mcclunatic/devcontainers-features/sshd:latest": {
+      "username": "spack",
+      "sshd_port": 10648,
+      "start_sshd": true
+    }
+  },
+  "remoteUser": "spack",
+  "workspaceFolder": "/workspace",
+  "workspaceMount": "type=volume,source=spack-dev,target=/workspace",
+  "postCreateCommand": "sudo chown spack:spack /workspace",
+  "appPort": [6000, 10648]
+}
