@@ -184,6 +184,16 @@ class Rust(Package):
         # Disable bootstrap LLVM download.
         opts.append("llvm.download-ci-llvm=false")
 
+        # Ensure the right rust channel is used.
+        if spec.satisfies("@master"):
+            opts.append("rust.channel=dev")
+        elif spec.satisfies("@beta"):
+            opts.append("rust.channel=beta")
+        elif spec.satisfies("@nightly"):
+            opts.append("rust.channel=nightly")
+        else:
+            opts.append("rust.channel=stable")
+
         # Convert opts to '--set key=value' format.
         flags = [flag for opt in opts for flag in ("--set", opt)]
 
